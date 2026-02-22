@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music App · Favorite Stations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #022c22;
+      background-image:
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .station-card:hover .play-overlay {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body class="text-slate-100 min-h-screen font-sans antialiased custom-scrollbar">
+
+  <div class="flex flex-col min-h-screen">
+
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-white/5">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2 group">
+          <div
+            class="h-9 w-9 flex items-center justify-center rounded-xl bg-brand-500 shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              class="w-5 h-5 text-brand-950">
+              <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+          </div>
+          <span
+            class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+            Music<span class="text-brand-400">App</span>
+          </span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="/" class="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">Radio</a>
+          <a href="/songs"
+            class="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">Library</a>
+          <a href="/favorites"
+            class="px-4 py-2 rounded-full text-sm font-medium bg-white/10 text-white">Favorites</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-12">
+
+      <div class="text-center mb-16">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">Your Favorites</h1>
+        <p class="text-lg text-white/60 leading-relaxed max-w-2xl mx-auto">
+          The stations you've marked as favorites for quick and easy access to your daily vibes.
+        </p>
+      </div>
+
+      {% if stations %}
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+        {% for s in stations %}
+        <div
+          class="group station-card relative flex flex-col bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/[0.08] transition-all duration-300">
+
+          <div class="relative aspect-square rounded-xl overflow-hidden mb-4 shadow-lg bg-brand-950/50">
+            <img
+              src="https://picsum.photos/300/300?random={{ s.id }}"
+              alt="{{ s.name }}"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+              onerror="this.src='https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80'">
+
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60"></div>
+
+            <div
+              class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 transform translate-y-4 transition-all duration-300">
+              <a href="/stations/{{ s.slug }}/play"
+                class="w-14 h-14 bg-brand-500 rounded-full flex items-center justify-center text-brand-950 shadow-2xl hover:scale-110 active:scale-95 transition">
+                <svg class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </a>
+            </div>
+
+            <div class="absolute top-3 right-3">
+              <form method="post" action="/stations/{{ s.slug }}/favorite">
+                <button type="submit"
+                  class="p-2.5 rounded-full backdrop-blur-xl bg-black/40 hover:bg-brand-500/20 text-white transition-all">
+                  <svg class="w-4 h-4 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="flex-1 px-1">
+            <h3
+              class="font-bold text-white text-sm leading-tight truncate mb-1 group-hover:text-brand-400 transition-colors">
+              {{ s.name }}</h3>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] text-white/50 truncate font-medium uppercase tracking-wider">{{ s.country.name if
+                s.country else s.country_code or "Unknown" }}</span>
+              <span
+                class="text-[9px] font-black px-2 py-0.5 rounded bg-white/5 text-white/40 group-hover:bg-brand-500/20 group-hover:text-brand-400 transition-colors uppercase tracking-widest">
+                {{ s.genre[:12] if s.genre else "MIX" }}
+              </span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="glass-panel rounded-[2.5rem] p-12 text-center max-w-xl mx-auto border-dashed border-white/10">
+        <div class="h-16 w-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white/20">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-3">No favorites yet</h2>
+        <p class="text-white/40 mb-8">Start exploring stations and click the heart icon to save them here for later.</p>
+        <a href="/" class="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-400 text-brand-950 font-extrabold px-8 py-4 rounded-2xl transition shadow-xl shadow-brand-500/20 active:scale-95">
+          Browse Stations
+        </a>
+      </div>
+      {% endif %}
+
+      <footer class="mt-20 py-10 border-t border-white/5 text-center">
+        <p class="text-white/20 text-[10px] font-bold tracking-[0.3em] uppercase mb-2">
+          Music Application Infrastructure
+        </p>
+        <p class="text-white/10 text-xs">
+          Built with Radio Browser API
+        </p>
+      </footer>
+
+    </main>
+  </div>
+</body>
+
+</html>

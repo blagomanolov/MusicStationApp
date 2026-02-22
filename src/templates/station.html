@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ station.name }} · Music App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #022c22;
+      background-image:
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    audio::-webkit-media-controls-panel {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    audio::-webkit-media-controls-current-time-display,
+    audio::-webkit-media-controls-time-remaining-display {
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body class="text-slate-100 min-h-screen font-sans antialiased custom-scrollbar">
+
+  <div class="flex flex-col min-h-screen">
+
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-white/5">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2 group">
+          <div class="h-9 w-9 flex items-center justify-center rounded-xl bg-brand-500 shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-5 h-5 text-brand-950">
+              <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+          </div>
+          <span class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+            Music<span class="text-brand-400">App</span>
+          </span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="/" class="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">Radio</a>
+          <a href="/songs" class="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">Library</a>
+          <a href="/favorites" class="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">Favorites</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-12 flex items-center justify-center">
+
+      <div class="w-full max-w-lg">
+        <div class="glass-panel rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative overflow-hidden">
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-500/20 blur-[80px] rounded-full"></div>
+          
+          <a href="/" class="inline-flex items-center gap-2 text-white/40 hover:text-brand-400 text-xs font-bold uppercase tracking-widest mb-8 transition-colors group">
+            <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Explore
+          </a>
+
+          <div class="relative aspect-square rounded-3xl overflow-hidden mb-8 shadow-2xl ring-1 ring-white/10">
+            <img src="https://picsum.photos/600/600?random={{ station.id }}" alt="{{ station.name }}" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-950/80 via-transparent to-transparent"></div>
+            
+            <div class="absolute top-4 right-4">
+              <form method="post" action="/stations/{{ station.slug }}/favorite">
+                <button type="submit" class="p-3 rounded-2xl backdrop-blur-xl bg-black/40 border border-white/10 hover:bg-brand-500/20 transition-all text-white">
+                  {% if station.is_favorite %}
+                    <svg class="w-5 h-5 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  {% else %}
+                    <svg class="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  {% endif %}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="text-center mb-10">
+            <h2 class="text-3xl font-black text-white tracking-tight mb-2">{{ station.name }}</h2>
+            <div class="flex items-center justify-center gap-3">
+              <span class="text-xs font-bold uppercase tracking-[0.2em] text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full">{{ station.genre or "Various" }}</span>
+              <span class="text-white/20">•</span>
+              <span class="text-xs font-bold uppercase tracking-[0.2em] text-white/40">{{ country_name }}</span>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
+              <audio controls autoplay class="w-full h-10">
+                <source src="{{ station.url }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+              <button id="recognizeBtn" class="flex items-center justify-center gap-3 w-full bg-brand-500 hover:bg-brand-400 text-brand-950 font-extrabold py-4 rounded-2xl transition shadow-xl shadow-brand-500/20 active:scale-95 group">
+                <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+                </svg>
+                Identify Current Song
+              </button>
+
+              <div id="songResultBox" class="hidden glass-panel p-5 rounded-2xl border-brand-500/30 text-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <p id="songResult" class="text-sm font-bold text-white mb-4"></p>
+                <button id="saveSongBtn" class="w-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl transition border border-white/10">
+                  Save to Library
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-center mt-8 text-white/20 text-[10px] font-bold tracking-[0.3em] uppercase">
+          Stream Infrastructure
+        </p>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const audio = document.querySelector('audio');
+      const data = {
+        name: "{{ station.name|e }}",
+        slug: "{{ station.slug|e }}",
+        url: "{{ station.url|e }}",
+        genre: "{{ station.genre or 'Unknown' }}",
+        country: "{{ country_name }}",
+        playing: true,
+        updatedAt: Date.now()
+      };
+      
+      try {
+        localStorage.setItem('currentStation', JSON.stringify(data));
+      } catch (e) { }
+
+      function setPlaying(playing) {
+        try {
+          const raw = localStorage.getItem('currentStation');
+          const st = raw ? JSON.parse(raw) : data;
+          st.playing = playing;
+          st.updatedAt = Date.now();
+          localStorage.setItem('currentStation', JSON.stringify(st));
+        } catch (e) { }
+      }
+
+      audio.addEventListener('play', () => setPlaying(true));
+      audio.addEventListener('pause', () => setPlaying(false));
+      audio.addEventListener('ended', () => setPlaying(false));
+    })();
+
+    (async function () {
+      const slug = "{{ station.slug|e }}";
+      const recognizeBtn = document.getElementById("recognizeBtn");
+      const resultBox = document.getElementById("songResultBox");
+      const resultText = document.getElementById("songResult");
+      const saveBtn = document.getElementById("saveSongBtn");
+
+      let currentSong = null;
+
+      recognizeBtn.addEventListener("click", async () => {
+        recognizeBtn.disabled = true;
+        recognizeBtn.innerHTML = `
+          <svg class="animate-spin h-5 w-5 text-brand-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Listening...
+        `;
+        
+        resultBox.classList.add('hidden');
+
+        try {
+          const res = await fetch(`/stations/${slug}/recognize`);
+          if (!res.ok) throw new Error("Recognition failed");
+          const data = await res.json();
+          currentSong = data.song;
+          
+          resultBox.classList.remove('hidden');
+          resultText.textContent = "🎶 " + currentSong;
+          
+          if (currentSong && !currentSong.startsWith("Error") && currentSong !== "Not recognized") {
+            saveBtn.classList.remove('hidden');
+          } else {
+            saveBtn.classList.add('hidden');
+          }
+        } catch (err) {
+          resultBox.classList.remove('hidden');
+          resultText.textContent = "❌ Recognition failed. Try again.";
+          console.error(err);
+        } finally {
+          recognizeBtn.disabled = false;
+          recognizeBtn.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+            </svg>
+            Identify Current Song
+          `;
+        }
+      });
+
+      saveBtn.addEventListener("click", async () => {
+        if (!currentSong) return;
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+        
+        try {
+          const res = await fetch(`/songs/add?name=${encodeURIComponent(currentSong)}`, {
+            method: "POST",
+          });
+          const data = await res.json();
+          resultText.textContent = "✅ " + (data.message || "Saved to library");
+          saveBtn.classList.add('hidden');
+        } catch (err) {
+          resultText.textContent = "❌ Error saving song.";
+          console.error(err);
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Save to Library";
+        }
+      });
+    })();
+  </script>
+</body>
+
+</html>

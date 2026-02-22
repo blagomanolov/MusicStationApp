@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music App · Explore Radio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #022c22;
+      background-image:
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .station-card:hover .play-overlay {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body class="text-slate-100 min-h-screen font-sans antialiased custom-scrollbar">
+
+  <div class="flex flex-col min-h-screen">
+
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-white/5">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2 group">
+          <div
+            class="h-9 w-9 flex items-center justify-center rounded-xl bg-brand-500 shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              class="w-5 h-5 text-brand-950">
+              <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+          </div>
+          <span
+            class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+            Music<span class="text-brand-400">App</span>
+          </span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="/" class="px-4 py-2 rounded-full text-sm font-medium bg-white/10 text-white">Radio</a>
+          <a href="/songs"
+            class="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">Library</a>
+          <a href="/favorites"
+            class="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">Favorites</a>
+        </nav>
+
+      </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-8">
+
+      <div class="relative overflow-hidden rounded-3xl mb-10 p-8 sm:p-12">
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-600/20 to-transparent"></div>
+        <div class="relative z-10 max-w-2xl">
+          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">Discover Stations</h1>
+          <p class="text-lg text-white/60 leading-relaxed mb-8">
+            Access thousands of radio stations worldwide. Filter by genre, country, or mood to find your next favorite
+            vibe.
+          </p>
+
+          <form method="get" class="glass-panel p-6 rounded-3xl flex flex-col md:flex-row gap-4 shadow-2xl">
+            <div class="relative flex-1">
+              <label for="search"
+                class="block text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1.5 ml-1">Search
+                Station</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-white/40">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input id="search" name="q" value="{{ selected_query or '' }}" type="text" placeholder="e.g. Jazz FM..."
+                  class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-brand-500/50 transition outline-none">
+              </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4 items-end">
+              <div class="w-full sm:w-40">
+                <label for="genre"
+                  class="block text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1.5 ml-1">Genre</label>
+                <input id="genre" name="genre" value="{{ selected_genre or '' }}" type="text" placeholder="Rock, Pop..."
+                  class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500/50 transition outline-none">
+              </div>
+              <div class="w-full sm:w-40">
+                <label for="country"
+                  class="block text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1.5 ml-1">Country</label>
+                <input id="country" name="country" value="{{ selected_country or '' }}" type="text"
+                  placeholder="UK, US..."
+                  class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500/50 transition outline-none">
+              </div>
+              <button type="submit"
+                class="w-full sm:w-auto bg-brand-500 hover:bg-brand-400 text-brand-950 font-bold px-8 py-3 rounded-xl transition shadow-lg shadow-brand-500/20 active:scale-95">
+                Apply
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mb-8 px-2">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-white">Featured Stations</h2>
+          {% if query or selected_genre or selected_country %}
+          <p class="text-xs text-brand-400 mt-1">Showing results for your custom filter</p>
+          {% else %}
+          <p class="text-xs text-white/40 mt-1">Handpicked radio from around the globe</p>
+          {% endif %}
+        </div>
+        <div class="flex gap-2">
+          <a href="/"
+            class="text-xs font-semibold text-white/40 hover:text-brand-400 transition underline decoration-brand-500/30 underline-offset-4">Clear
+            filters</a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+        {% for s in stations %}
+        <div
+          class="group station-card relative flex flex-col bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/[0.08] transition-all duration-300">
+
+          <div class="relative aspect-square rounded-xl overflow-hidden mb-4 shadow-lg bg-brand-950/50">
+            <img
+              src="https://picsum.photos/300/300?random={{ s.id }}"
+              alt="{{ s.name }}"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+              onerror="this.src='https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80'">
+
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60"></div>
+
+            <div
+              class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 transform translate-y-4 transition-all duration-300">
+              <a href="/stations/{{ s.slug }}/play"
+                class="w-14 h-14 bg-brand-500 rounded-full flex items-center justify-center text-brand-950 shadow-2xl hover:scale-110 active:scale-95 transition">
+                <svg class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </a>
+            </div>
+
+            <div class="absolute top-3 right-3">
+              <form method="post" action="/stations/{{ s.slug }}/favorite">
+                <button type="submit"
+                  class="p-2.5 rounded-full backdrop-blur-xl bg-black/40 hover:bg-brand-500/20 text-white transition-all">
+                  {% if s.is_favorite %}
+                  <svg class="w-4 h-4 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  {% else %}
+                  <svg class="w-4 h-4 text-white/60 hover:text-white" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                  {% endif %}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="flex-1 px-1">
+            <h3
+              class="font-bold text-white text-sm leading-tight truncate mb-1 group-hover:text-brand-400 transition-colors">
+              {{ s.name }}</h3>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] text-white/50 truncate font-medium uppercase tracking-wider">{{ s.country.name if
+                s.country else s.country_code or "Unknown" }}</span>
+              <span
+                class="text-[9px] font-black px-2 py-0.5 rounded bg-white/5 text-white/40 group-hover:bg-brand-500/20 group-hover:text-brand-400 transition-colors uppercase tracking-widest">
+                {{ s.genre[:12] if s.genre else "MIX" }}
+              </span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <nav class="flex justify-center items-center gap-2 mt-16 mb-12">
+        {% if page > 1 %}
+        <a href="/?page={{ page - 1 }}{% if selected_genre %}&genre={{ selected_genre }}{% endif %}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if query %}&q={{ query }}{% endif %}"
+          class="h-12 w-12 flex items-center justify-center rounded-2xl glass-panel hover:bg-brand-500 hover:text-brand-950 hover:scale-105 active:scale-95 transition shadow-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </a>
+        {% endif %}
+
+        <div class="flex items-center px-6 h-12 rounded-2xl glass-panel text-sm font-bold tracking-tight shadow-lg">
+          <span class="text-brand-400">Page {{ page }}</span>
+          <span class="text-white/20 mx-3">/</span>
+          <span class="text-white/40">{{ total_pages }}</span>
+        </div>
+
+        {% if page < total_pages %} <a
+          href="/?page={{ page + 1 }}{% if selected_genre %}&genre={{ selected_genre }}{% endif %}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if query %}&q={{ query }}{% endif %}"
+          class="h-12 w-12 flex items-center justify-center rounded-2xl glass-panel hover:bg-brand-500 hover:text-brand-950 hover:scale-105 active:scale-95 transition shadow-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          </a>
+          {% endif %}
+      </nav>
+
+      <footer class="mt-20 py-10 border-t border-white/5 text-center">
+        <p class="text-white/20 text-[10px] font-bold tracking-[0.3em] uppercase mb-2">
+          Music Application Infrastructure
+        </p>
+        <p class="text-white/10 text-xs">
+          Built with Radio Browser API
+        </p>
+      </footer>
+
+    </main>
+  </div>
+
+  <div id="mini-player" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-xl">
+    <div
+      class="backdrop-blur-3xl bg-black/80 ring-1 ring-white/10 rounded-3xl p-4 shadow-2xl flex items-center gap-5 border border-white/5">
+
+      <div
+        class="h-14 w-14 rounded-2xl bg-brand-950 flex-shrink-0 flex items-center justify-center overflow-hidden border border-white/10 relative">
+        <div class="absolute inset-0 bg-brand-500/10 animate-pulse"></div>
+        <svg class="w-7 h-7 text-brand-400 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+        </svg>
+      </div>
+
+      <div class="flex-1 min-w-0">
+        <div id="mini-title" class="text-sm font-extrabold truncate text-white tracking-tight">Station Name</div>
+        <div id="mini-sub" class="text-[10px] text-brand-400 font-bold truncate uppercase tracking-widest mt-0.5">Genre
+          • Country</div>
+      </div>
+
+      <div class="flex items-center gap-2 pr-2">
+        <button id="mini-toggle"
+          class="h-12 w-12 flex items-center justify-center rounded-2xl bg-white text-black hover:scale-105 active:scale-95 transition shadow-xl">
+          <svg id="play-icon" class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+        <button id="mini-stop"
+          class="h-10 w-10 flex items-center justify-center rounded-xl text-white/30 hover:text-white hover:bg-white/10 transition">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <audio id="mini-audio" class="hidden"></audio>
+  </div>
+
+  <script>
+      (function () {
+        const $ = (id) => document.getElementById(id);
+        const box = $('mini-player');
+        const title = $('mini-title');
+        const sub = $('mini-sub');
+        const btn = $('mini-toggle');
+        const stop = $('mini-stop');
+        const audio = $('mini-audio');
+        const playIcon = $('play-icon');
+
+        function loadState() {
+          try {
+            const raw = localStorage.getItem('currentStation');
+            return raw ? JSON.parse(raw) : null;
+          } catch (e) { return null; }
+        }
+
+        function saveState(st) {
+          try {
+            st.updatedAt = Date.now();
+            localStorage.setItem('currentStation', JSON.stringify(st));
+          } catch (e) { }
+        }
+
+        function render() {
+          const st = loadState();
+          if (!st || !st.url) {
+            box.classList.add('hidden');
+            return;
+          }
+
+          box.classList.remove('hidden');
+          title.textContent = st.name || 'Unknown Station';
+          sub.textContent = `${st.genre || 'Various'} • ${st.country || 'Global'}`;
+
+          if (audio.src !== st.url) {
+            audio.src = st.url;
+          }
+
+          if (st.playing) {
+            audio.play().catch(() => {
+              st.playing = false;
+              saveState(st);
+              updatePlayUI(false);
+            });
+            updatePlayUI(true);
+          } else {
+            audio.pause();
+            updatePlayUI(false);
+          }
+        }
+
+        function updatePlayUI(isPlaying) {
+          playIcon.innerHTML = isPlaying
+            ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' // Pause icon
+            : '<path d="M8 5v14l11-7z"/>'; // Play icon
+        }
+
+        btn.addEventListener('click', () => {
+          const st = loadState();
+          if (!st) return;
+          st.playing = !st.playing;
+          saveState(st);
+          render();
+        });
+
+        stop.addEventListener('click', () => {
+          try { localStorage.removeItem('currentStation'); } catch (e) { }
+          audio.pause();
+          audio.removeAttribute('src');
+          box.classList.add('hidden');
+        });
+
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'currentStation') render();
+        });
+
+        render();
+      })();
+  </script>
+</body>
+
+</html>

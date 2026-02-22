@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music App · Favorite Songs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #022c22;
+      background-image:
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body class="text-slate-100 min-h-screen font-sans antialiased custom-scrollbar">
+
+  <div class="flex flex-col min-h-screen">
+
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-white/5">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2 group">
+          <div class="h-9 w-9 flex items-center justify-center rounded-xl bg-brand-500 shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-5 h-5 text-brand-950">
+              <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+          </div>
+          <span class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+            Music<span class="text-brand-400">App</span>
+          </span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="/" class="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">Radio</a>
+          <a href="/songs" class="px-4 py-2 rounded-full text-sm font-medium bg-white/10 text-white">Library</a>
+          <a href="/favorites" class="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition">Favorites</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-12">
+
+      <div class="text-center mb-16">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">Your Songs</h1>
+        <p class="text-lg text-white/60 leading-relaxed max-w-2xl mx-auto">
+          All the tracks you've captured from your favorite stations.
+        </p>
+      </div>
+
+      {% if songs %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for s in songs %}
+        <div class="group relative flex flex-col bg-white/5 rounded-2xl p-6 border border-white/5 hover:bg-white/[0.08] transition-all duration-300">
+          
+          <div class="flex items-start justify-between mb-4">
+            <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-brand-500/10 text-brand-400">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+              </svg>
+            </div>
+            
+            <form method="post" action="/songs/{{ s.id }}/delete" onsubmit="return confirm('Remove this song from your library?');">
+              <button type="submit" class="p-2 rounded-lg text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </form>
+          </div>
+
+          <div class="flex-1">
+            <h3 class="font-bold text-white text-lg leading-tight mb-1 group-hover:text-brand-400 transition-colors line-clamp-2">
+              {{ s.name }}
+            </h3>
+            <p class="text-sm text-white/40 font-medium">Added to library</p>
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between text-xs font-bold tracking-widest uppercase text-white/30">
+            <span>Track ID: {{ s.id }}</span>
+            <span class="text-brand-500/50">Stored</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="glass-panel rounded-[2.5rem] p-12 text-center max-w-xl mx-auto border-dashed border-white/10">
+        <div class="h-16 w-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white/20">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-3">Library is empty</h2>
+        <p class="text-white/40 mb-8">You haven't saved any songs yet. Listen to a station and save tracks as you hear them!</p>
+        <a href="/" class="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-400 text-brand-950 font-extrabold px-8 py-4 rounded-2xl transition shadow-xl shadow-brand-500/20 active:scale-95">
+          Go to Radio
+        </a>
+      </div>
+      {% endif %}
+
+      <footer class="mt-20 py-10 border-t border-white/5 text-center">
+        <p class="text-white/20 text-[10px] font-bold tracking-[0.3em] uppercase mb-2">
+          Music Application Infrastructure
+        </p>
+        <p class="text-white/10 text-xs">
+          Built with Radio Browser API
+        </p>
+      </footer>
+
+    </main>
+  </div>
+</body>
+
+</html>
