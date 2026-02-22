@@ -1,6 +1,6 @@
 # Music Streaming Application
 
-A modern web application for discovering and streaming radio stations from around the world. Built with FastAPI and featuring a responsive UI with Tailwind CSS.
+A modern web application for discovering and streaming radio stations from around the world. Built with FastAPI and featuring a responsive UI with Tailwind CSS. Includes integrated YouTube and Spotify search functionality for discovered songs.
 
 ## Features
 
@@ -9,6 +9,7 @@ A modern web application for discovering and streaming radio stations from aroun
 - **Favorite Management**: Mark stations as favorites for quick access
 - **Real-time Song Recognition**: Identify currently playing songs from radio streams
 - **Station Playback**: Stream radio stations directly in the browser
+- **YouTube & Spotify Integration**: Search for recognized songs directly on YouTube and Spotify platforms
 - **Pagination**: Efficiently browse large collections of stations
 - **Responsive Design**: Works seamlessly across devices
 
@@ -93,7 +94,7 @@ The application follows a clean architectural pattern with separation of concern
 | POST | `/station/create` | Create a new radio station |
 | POST | `/stations/{slug}/favorite` | Toggle station as favorite |
 | GET | `/favorites` | View favorite stations |
-| GET | `/songs` | View song library |
+| GET | `/songs` | View song library with YouTube & Spotify search integration |
 | POST | `/songs/{song_id}/delete` | Delete a song |
 | GET | `/stations/{slug}/play` | Play a specific station |
 | GET | `/stations/{slug}/recognize` | Get current song from station |
@@ -109,6 +110,9 @@ Users can mark stations as favorites with a simple click, making it easy to acce
 
 ### Real-time Song Recognition
 The application can detect the currently playing song from radio streams using ICY metadata, providing real-time information about the track.
+
+### YouTube & Spotify Integration
+Users can easily search for recognized songs on both YouTube and Spotify platforms directly from the song library page, allowing for seamless transition from discovery to full listening experience.
 
 ### Audio Player
 Built-in audio player with persistent mini-player that stays accessible as users navigate the site.
